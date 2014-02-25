@@ -65,15 +65,17 @@ var Autolinker = {
 		    inBetweenTagsText,
 		    resultHtml = "",
 		    anchorTagStackCount = 0;
-		
+
+        if(!options.callback) {
+            options.callback = function(anchorAttributes, anchorHref, anchorText) {
+                return '<a ' + anchorAttributes.join( " " ) + '>' + anchorText + '</a>';
+            };
+        }
 		// Function to process the text that lies between HTML tags. This function does the actual wrapping of
 		// URLs with anchor tags.
 		function autolinkText( text ) {
-			text = text.replace( matcherRegex, function( match, $1, $2, $3, $4, $5 ) {
-				var twitterMatch = $1,
-				    twitterHandlePrefixWhitespaceChar = $2,  // The whitespace char before the @ sign in a Twitter handle match. This is needed because of no lookbehinds in JS regexes
-				    twitterHandle = $3, // The actual twitterUser (i.e the word after the @ sign in a Twitter handle match)
-				    emailAddress = $4,   // For both determining if it is an email address, and stores the actual email address
+			text = text.replace( matcherRegex, function( match, $1, $2 ) {
+				var emailAddress = $1,   // For both determining if it is an email address, and stores the actual email address
 				    
 				    prefixStr = "",     // A string to use to prefix the anchor tag that is created. This is needed for the Twitter handle match
 				    anchorHref = "",
@@ -86,12 +88,7 @@ var Autolinker = {
 				
 				// Process the urls that are found. We need to change URLs like "www.yahoo.com" to "http://www.yahoo.com" (or the browser
 				// will try to direct the user to "http://jux.com/www.yahoo.com"), and we need to prefix 'mailto:' to email addresses.
-				if( twitterMatch ) {
-					prefixStr = twitterHandlePrefixWhitespaceChar;
-					anchorHref = 'https://twitter.com/' + twitterHandle;
-					anchorText = '@' + twitterHandle;
-				
-				} else if( emailAddress ) {
+				if( emailAddress ) {
 					anchorHref = 'mailto:' + emailAddress;
 					anchorText = emailAddress;
 				
@@ -119,7 +116,7 @@ var Autolinker = {
 					anchorText = anchorText.substring( 0, truncate - 2 ) + '..';
 				}
 				
-				return prefixStr + '<a ' + anchorAttributes.join( " " ) + '>' + anchorText + '</a>';  // wrap the match in an anchor tag
+				return prefixStr + options.callback(anchorAttributes, anchorHref, anchorText);  // wrap the match in an anchor tag
 			} );
 			
 			return text;

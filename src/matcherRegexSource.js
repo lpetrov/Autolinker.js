@@ -19,9 +19,7 @@
  *    This also includes a path, url parameters, or hash anchors. Ex: google.com/path/to/file?q1=1&q2=2#myAnchor
  */
 Autolinker.matcherRegex = (function() {
-	var twitterRegex = /(^|\s)@(\w{1,15})/,                 // For matching a twitter handle. Ex: @gregory_jacobs
-	    
-	    emailRegex = /(?:[\-;:&=\+\$,\w\.]+@)/,             // something@ for email addresses (a.k.a. local-part)
+	var emailRegex = /(?:[\-;:&=\+\$,\w\.]+@)/,             // something@ for email addresses (a.k.a. local-part)
 	    
 	    protocolRegex = /(?:[A-Za-z]{3,9}:(?:\/\/)?)/,      // match protocol, allow in format http:// or mailto:
 	    wwwRegex = /(?:www\.)/,                             // starting with 'www.'
@@ -34,14 +32,6 @@ Autolinker.matcherRegex = (function() {
 	
 	
 	return new RegExp( [
-		'(',  // *** Capturing group $1, which can be used to check for a twitter handle match. Use group $3 for the actual twitter handle though. $2 may be used to reconstruct the original string in a replace() 
-			// *** Capturing group $2, which matches the whitespace character before the '@' sign (needed because of no lookbehinds), and 
-			// *** Capturing group $3, which matches the actual twitter handle
-			twitterRegex.source,
-		')',
-		
-		'|',
-		
 		'(',  // *** Capturing group $4, which is used to determine an email match
 			emailRegex.source,
 			domainNameRegex.source,
